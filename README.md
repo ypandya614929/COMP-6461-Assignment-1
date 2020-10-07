@@ -9,15 +9,19 @@ COMP-6461-Assignment-1
     - python httpc.py get 'http://httpbin.org/get?course=networking&assignment=1' -o output.txt
     - python httpc.py get -v 'http://httpbin.org/get?course=networking&assignment=1' 
     - python httpc.py get -v 'http://httpbin.org/get?course=networking&assignment=1' -o output.txt
-    - python httpc.py post -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post
-    - python httpc.py post -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post 
-      -o output.txt
-    - python httpc.py post -v -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post
-    - python httpc.py post -v -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post 
-      -o output.txt
-    - python httpc.py post -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post"
-    - python httpc.py post -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post" 
-      -o output.txt
-    - python httpc.py post -v -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post"
-    - python httpc.py post -v -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post" 
-      -o output.txt
+    - python httpc.py post -head Content-Type:application/json -d '{"Assignment": 1}' 
+        http://httpbin.org/post
+    - python httpc.py post -head Content-Type:application/json -d '{"Assignment": 1}' 
+        http://httpbin.org/post -o output.txt
+    - python httpc.py post -v -head Content-Type:application/json -d '{"Assignment": 1}' 
+        http://httpbin.org/post
+    - python httpc.py post -v -head Content-Type:application/json -d '{"Assignment": 1}' 
+        http://httpbin.org/post -o output.txt
+    - python httpc.py post -head Content-Type:application/json -f "data.txt" 
+        "http://httpbin.org/post"
+    - python httpc.py post -head Content-Type:application/json -f "data.txt" 
+        "http://httpbin.org/post" -o output.txt
+    - python httpc.py post -v -head Content-Type:application/json -f "data.txt" 
+        "http://httpbin.org/post"
+    - python httpc.py post -v -head Content-Type:application/json -f "data.txt" 
+        "http://httpbin.org/post" -o output.txt
