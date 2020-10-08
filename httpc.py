@@ -10,14 +10,15 @@
 # python httpc.py get 'http://httpbin.org/get?course=networking&assignment=1' -o output.txt
 # python httpc.py get -v 'http://httpbin.org/get?course=networking&assignment=1' 
 # python httpc.py get -v 'http://httpbin.org/get?course=networking&assignment=1' -o output.txt
-# python httpc.py post -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post
-# python httpc.py post -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post -o output.txt
-# python httpc.py post -v -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post
-# python httpc.py post -v -head Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post -o output.txt
-# python httpc.py post -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post"
-# python httpc.py post -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post" -o output.txt
-# python httpc.py post -v -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post"
-# python httpc.py post -v -head Content-Type:application/json -f "data.txt" "http://httpbin.org/post" -o output.txt
+# python httpc.py post --h Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post
+# python httpc.py post --h Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post -o output.txt
+# python httpc.py post -v --h Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post
+# python httpc.py post -v --h Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post -o output.txt
+# python httpc.py post --h Content-Type:application/json -f "data.txt" "http://httpbin.org/post"
+# python httpc.py post --h Content-Type:application/json -f "data.txt" "http://httpbin.org/post" -o output.txt
+# python httpc.py post -v --h Content-Type:application/json -f "data.txt" "http://httpbin.org/post"
+# python httpc.py post -v --h Content-Type:application/json -f "data.txt" "http://httpbin.org/post" -o output.txt
+# python httpc.py get -v "http://google.com/"
 
 import argparse
 from httpserver import HTTPServer
@@ -85,7 +86,7 @@ class HTTPClient:
         getparser.add_argument("-v", action='store_true',
                                 dest="verbose", default=False,
                                 help="Prints the detail of the response such as protocol, status, and headers.")
-        getparser.add_argument("-head", action="append", dest='headers',
+        getparser.add_argument("--h", action="append", dest='headers',
                                 default=[], help="Associates headers to HTTP Request with the format 'key:value'.")
         getparser.add_argument("-o", action="store", dest="output", default="",
                                 help="Allow the HTTP client to write the output response to the specified file",
@@ -97,7 +98,7 @@ class HTTPClient:
             'post', help='executes a HTTP POST request and prints the response.')
         postparser.add_argument("-v", action='store_true', dest="verbose", default=False,
                                  help="Prints the detail of the response such as protocol, status, and headers.")
-        postparser.add_argument("-head", action="append", dest="headers", default=[],
+        postparser.add_argument("--h", action="append", dest="headers", default=[],
                                  help="Associates headers to HTTP Request with the format 'key:value'.")
         group = postparser.add_mutually_exclusive_group(required=False)
         group.add_argument("-d", action="store", dest="data",
@@ -179,12 +180,11 @@ class HTTPClient:
             a HTTPServer class instance for connectivity
         """
         header = {}
-        body = None
         http_server.method = self._params.method
-        http_server.header.update({"User-Agent": "httpc/1.0"})
+        http_server.header.update({"User-Agent": "COMP-6461/1.0"})
 
         if self._params.method.upper() == "POST":
-            data = None
+            data = ""
             if self._params.data:
                 data = self._params.data
                 http_server.data = data
@@ -211,9 +211,9 @@ class HTTPClient:
         """
         consoledata = None
         if self._connection.verbose:
-            consoledata = self._data.body
+            consoledata = self._data.response
         else:
-            consoledata = self._data.body.split("\r\n\r\n")[1]
+            consoledata = self._data.response.split("\r\n\r\n")[1]
         if self._params.output:
             self.filewrite(self._params.output, consoledata)
         else:
