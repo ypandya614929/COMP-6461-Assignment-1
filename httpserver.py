@@ -34,11 +34,12 @@ class HTTPServer:
         self.host = self.url.netloc
         self.header = {"Host": self.host}
         self.data = ""
-        self.body = ""
+        self.response = ""
         self.file = ""
         self.content = ""
         self.proto = " HTTP/1.0"
         self.query = self.url.query if self.url.query else ""
+        self.count = 0
 
     def buildRequestheaders(self):
         """It is used to generate headers.
@@ -61,8 +62,10 @@ class HTTPServer:
         str
             a string containing GET request
         """
-        request = self.method.upper() + " " + self.url.path + "?" + self.query + \
-            self.proto + self.buildRequestheaders() + "\r\n"
+        request = "{} {}?{}{}{}\r\n".format(
+            self.method.upper(), self.url.path, self.query,
+            self.proto, self.buildRequestheaders()
+        )
         self.content = request
 
     def buildPOSTrequest(self):
@@ -75,15 +78,34 @@ class HTTPServer:
         """
         request = ""
         if self.data:
-            request = self.method.upper() + " " + self.url.path + self.proto + \
-                self.buildRequestheaders() + "\r\n" + self.data
+            request = "{} {}{}{}\r\n{}".format(
+                self.method.upper(), self.url.path, self.proto,
+                self.buildRequestheaders(), self.data
+            )
         elif self.file:
-            request = self.method.upper() + " " + self.url.path + self.proto + \
-                self.buildRequestheaders() + "\r\n" + self.file
+            request = "{} {}{}{}\r\n{}".format(
+                self.method.upper(), self.url.path, self.proto, 
+                self.buildRequestheaders(), self.file
+            )
         else:
-            request = self.method.upper() + " " + self.url.path + self.proto + \
-                self.buildRequestheaders() + "\r\n"
+            request = "{} {}{}{}\r\n".format(
+                self.method.upper(), self.url.path, self.proto, 
+                self.buildRequestheaders()
+            )
         self.content = request
+
+    def checkredirection(self):
+        response_list = self.response.split("\n")
+        status_code = response_list[0].split(" ")[1].strip()
+        if status_code in ["301", "302"]:
+            print("HTTP Response : ", response_list[0])
+            location = response_list[1].split(":", 1)[1].strip()
+            self.url = urlparse(location)
+            self.host = self.url.netloc
+            self.header.update({'Host': self.host})
+            self.buildGETrequest()
+            return True
+        return False
 
     def sendresponse(self):
         """It is used to send the response back to client.
@@ -97,8 +119,11 @@ class HTTPServer:
         try:
             s.connect((self.host, 80))
             s.sendall(self.content.encode("utf-8"))
-            response = s.recv(2048, socket.MSG_WAITALL)
-            self.body = response.decode("utf-8")
+            self.count+=1
+            self.response = s.recv(2048, socket.MSG_WAITALL).decode("utf-8")
+            while self.checkredirection():
+                print("=============== Redirecting... ===============")
+                self.sendresponse()
             return self
         except Exception as e:
             pass
