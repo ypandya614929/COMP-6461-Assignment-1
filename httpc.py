@@ -210,6 +210,7 @@ class HTTPC:
         consoledata = self._connection.getResponse()
         if self._params.output:
             self.filewrite(self._params.output, consoledata)
+            print("=============== Output saved. ===============")
         else:
             print("\nOutput:\n\n" + consoledata)
 
