@@ -30,3 +30,6 @@ COMP-6461-Assignment-1
         "http://httpbin.org/post" -o output.txt
     - python httpc.py get -v "http://google.com/"
 
+#### Note
+    Please note that `-h` is reserved for help function argument in python so for header \
+    we have used `--h` instead.
