@@ -1,7 +1,7 @@
 HTTP/1.1 200 OK
-Date: Thu, 08 Oct 2020 17:08:09 GMT
+Date: Thu, 08 Oct 2020 20:45:54 GMT
 Content-Type: application/json
-Content-Length: 403
+Content-Length: 375
 Connection: close
 Server: gunicorn/19.9.0
 Access-Control-Allow-Origin: *
@@ -9,19 +9,17 @@ Access-Control-Allow-Credentials: true
 
 {
   "args": {}, 
-  "data": "{\"Assignment\": 1}", 
+  "data": "Hi There!", 
   "files": {}, 
   "form": {}, 
   "headers": {
-    "Content-Length": "17", 
+    "Content-Length": "9", 
     "Content-Type": "application/json", 
     "Host": "httpbin.org", 
-    "User-Agent": "httpc/1.0", 
-    "X-Amzn-Trace-Id": "Root=1-5f7f4779-78cbe93d2df216eb100f477d"
+    "User-Agent": "COMP-6461/1.0", 
+    "X-Amzn-Trace-Id": "Root=1-5f7f7a82-5f7b0dd30b73b1111b1cd662"
   }, 
-  "json": {
-    "Assignment": 1
-  }, 
+  "json": null, 
   "origin": "103.85.11.45", 
   "url": "http://httpbin.org/post"
 }

@@ -1,7 +1,10 @@
 # COMP-6461-Assignment-1
 COMP-6461-Assignment-1
 
-### commands
+### HTTP Tests
+    - python tests.py
+
+### Curl like app - commands
     - python httpc.py -h
     - python httpc.py get -h
     - python httpc.py post -h

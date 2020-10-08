@@ -8,7 +8,7 @@
 # python httpc.py post -h
 # python httpc.py get 'http://httpbin.org/get?course=networking&assignment=1'
 # python httpc.py get 'http://httpbin.org/get?course=networking&assignment=1' -o output.txt
-# python httpc.py get -v 'http://httpbin.org/get?course=networking&assignment=1' 
+# python httpc.py get -v 'http://httpbin.org/get?course=networking&assignment=1'
 # python httpc.py get -v 'http://httpbin.org/get?course=networking&assignment=1' -o output.txt
 # python httpc.py post --h Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post
 # python httpc.py post --h Content-Type:application/json -d '{"Assignment": 1}' http://httpbin.org/post -o output.txt
@@ -21,16 +21,16 @@
 # python httpc.py get -v "http://google.com/"
 
 import argparse
-from httpserver import HTTPServer
+from httplibrary import HTTPLibrary
 
 
-class HTTPClient:
+class HTTPC:
     """
-    HTTPClient class used to represent all the client side operations
+    HTTPC class used to represent all the client side operations
     Methods
     -------
     __init__(self, url)
-        It is contructor for HTTPClient class.
+        It is contructor for HTTPC class.
     processrequest(self)
         It is used to build and process request.
     parsingcommands(self)
@@ -42,17 +42,17 @@ class HTTPClient:
     fileread(self)
         It is used to read response from the file.
     requestconnection(self)
-        It is used to create connection between HTTPServer class and
+        It is used to create connection between HTTPLibrary class and
         updates it's parameters.
     response(self)
         It is used to display response on console or write in file.
     """
 
     def __init__(self):
-        """It is contructor for HTTPClient class.
+        """It is contructor for HTTPC class.
         """
         self._params = None
-        self._http_server = None
+        self._http_lib = None
         self._connection = None
         self._data = None
 
@@ -60,8 +60,8 @@ class HTTPClient:
         """It is used to build and process request.
         """
         self._params = self.parsingcommands()
-        self._http_server = HTTPServer(self._params.URL)
-        self._connection = self.requestconnection(self._http_server)
+        self._http_lib = HTTPLibrary(self._params.URL)
+        self._connection = self.requestconnection(self._http_lib)
 
         while not self._data:
             self._data = self._connection.sendresponse()
@@ -84,30 +84,30 @@ class HTTPClient:
         getparser = subparsers.add_parser(
             'get', help='executes a HTTP GET request and prints the response.')
         getparser.add_argument("-v", action='store_true',
-                                dest="verbose", default=False,
-                                help="Prints the detail of the response such as protocol, status, and headers.")
+                               dest="verbose", default=False,
+                               help="Prints the detail of the response such as protocol, status, and headers.")
         getparser.add_argument("--h", action="append", dest='headers',
-                                default=[], help="Associates headers to HTTP Request with the format 'key:value'.")
+                               default=[], help="Associates headers to HTTP Request with the format 'key:value'.")
         getparser.add_argument("-o", action="store", dest="output", default="",
-                                help="Allow the HTTP client to write the output response to the specified file",
-                                required=False)
+                               help="Allow the HTTP client to write the output response to the specified file",
+                               required=False)
         getparser.add_argument("URL", help="HTTP URL")
         getparser.set_defaults(method='get')
 
         postparser = subparsers.add_parser(
             'post', help='executes a HTTP POST request and prints the response.')
         postparser.add_argument("-v", action='store_true', dest="verbose", default=False,
-                                 help="Prints the detail of the response such as protocol, status, and headers.")
+                                help="Prints the detail of the response such as protocol, status, and headers.")
         postparser.add_argument("--h", action="append", dest="headers", default=[],
-                                 help="Associates headers to HTTP Request with the format 'key:value'.")
+                                help="Associates headers to HTTP Request with the format 'key:value'.")
         group = postparser.add_mutually_exclusive_group(required=False)
         group.add_argument("-d", action="store", dest="data",
                            help="Associates an inline data to the body HTTP POST request.")
         group.add_argument("-f", action="store", dest="file", default="",
                            help="Associates the content of a file to the body HTTP POST request.")
         postparser.add_argument("-o", action="store", dest="output",
-                                 default="", help="Allow the HTTP client to write the output response to the specified file",
-                                 required=False)
+                                default="", help="Allow the HTTP client to write the output response to the specified file",
+                                required=False)
         postparser.add_argument("URL", help="HTTP URL")
         postparser.set_defaults(method='post')
 
@@ -170,50 +170,44 @@ class HTTPClient:
             pass
         return data
 
-    def requestconnection(self, http_server):
-        """It is used to create connection between HTTPServer 
+    def requestconnection(self, http_lib_obj):
+        """It is used to create connection between HTTPLibrary 
         class and updates it's parameters.
 
         Returns
         -------
-        HTTPServer
-            a HTTPServer class instance for connectivity
+        HTTPLibrary
+            a HTTPLibrary class instance for connectivity
         """
         header = {}
-        http_server.method = self._params.method
-        http_server.header.update({"User-Agent": "COMP-6461/1.0"})
+        http_lib_obj.setMethod(self._params.method)
+        http_lib_obj.setHeader("User-Agent", "COMP-6461/1.0")
 
         if self._params.method.upper() == "POST":
             data = ""
             if self._params.data:
                 data = self._params.data
-                http_server.data = data
+                http_lib_obj.setData(data)
             if self._params.file:
                 data = self.fileread(self._params.file)
-                http_server.file = data
-            http_server.header.update({"Content-Length": str(len(data))})
+                http_lib_obj.setFile(data)
+            http_lib_obj.setHeader("Content-Length", str(len(data)))
 
-        http_server.verbose = self._params.verbose if self._params.verbose else False
+        verbose = self._params.verbose if self._params.verbose else False
+        http_lib_obj.setVerbose(verbose)
 
         if self._params.headers:
             headers = self.updateheader(self._params.headers)
             for key, value in headers.items():
-                http_server.header.update({key: value})
+                http_lib_obj.setHeader(key, value)
 
-        if self._params.method.upper() == "GET":
-            http_server.buildGETrequest()
-        elif self._params.method.upper() == "POST":
-            http_server.buildPOSTrequest()
-        return http_server
+        http_lib_obj.buildRequest()
+        return http_lib_obj
 
     def response(self):
         """It is used to display response on console or write in file.
         """
-        consoledata = None
-        if self._connection.verbose:
-            consoledata = self._data.response
-        else:
-            consoledata = self._data.response.split("\r\n\r\n")[1]
+        consoledata = self._connection.getResponse()
         if self._params.output:
             self.filewrite(self._params.output, consoledata)
         else:
@@ -222,6 +216,5 @@ class HTTPClient:
 
 if __name__ == '__main__':
     # main method
-
-    httpc_obj = HTTPClient()
+    httpc_obj = HTTPC()
     httpc_obj.processrequest()
